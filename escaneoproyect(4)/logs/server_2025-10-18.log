@@ -1,0 +1,17 @@
+2025-10-18 01:11:25,351 [WARNING] No se encontró D:\escaneoproyect\admin_pass.txt. Se creó con contraseña por defecto '1234'. Cambiala ASAP.
+2025-10-18 01:11:25,353 [INFO] Base de datos existe: users.db
+2025-10-18 01:11:25,353 [INFO] Contraseña admin leída desde D:\escaneoproyect\admin_pass.txt
+2025-10-18 01:11:25,353 [INFO] Iniciando app Flask...
+2025-10-18 01:11:48,449 [INFO] REQ 127.0.0.1 GET / | args={}
+2025-10-18 01:11:48,455 [INFO] REQ 127.0.0.1 GET /login | args={}
+2025-10-18 01:11:48,467 [INFO] REQ 127.0.0.1 GET /static/style.css | args={}
+2025-10-18 01:11:56,332 [INFO] REQ 127.0.0.1 GET /login | args={}
+2025-10-18 01:11:56,372 [INFO] REQ 127.0.0.1 GET /static/style.css | args={}
+2025-10-18 01:11:57,674 [INFO] REQ 127.0.0.1 GET /login | args={}
+2025-10-18 01:11:57,687 [INFO] REQ 127.0.0.1 GET /static/style.css | args={}
+2025-10-18 01:12:58,616 [INFO] Base de datos existe: users.db
+2025-10-18 01:12:58,617 [INFO] Contraseña admin leída desde D:\escaneoproyect\admin_pass.txt
+2025-10-18 01:12:58,617 [INFO] Iniciando app Flask...
+2025-10-18 01:13:22,664 [INFO] REQ 127.0.0.1 GET / | args={}
+2025-10-18 01:13:22,671 [INFO] REQ 127.0.0.1 GET /login | args={}
+2025-10-18 01:13:22,683 [INFO] REQ 127.0.0.1 GET /static/style.css | args={}
