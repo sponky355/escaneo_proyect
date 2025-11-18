@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>IA Asistente</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=1.0">
+</head>
+<body>
+
+    <!-- Botón de modo oscuro/claro -->
+    <div class="theme-toggle">
+        <button id="themeToggle" class="btn-theme">🌙 Modo Oscuro</button>
+    </div>
+
+    <div class="ai-container">
+        <div class="ai-header">
+            <h1>🤖 IA Asistente</h1>
+            <p class="ai-user">Bienvenido, <strong>{{ user }}</strong></p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="msgs">
+            {% for category, msg in messages %}
+              <div class="msg {{ category }}">{{ msg }}</div>
+            {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="main-content">
+            <!-- Panel de respuesta -->
+            <div class="panel response-panel">
+                <div class="panel-header">Respuesta del Asistente</div>
+                <div class="chat-log" id="chatLog">
+                    <div class="msg bot">Hola <strong>{{ user }}</strong> 👋, soy tu asistente IA. ¿En qué puedo ayudarte hoy?</div>
+                </div>
+            </div>
+            
+            <!-- Panel de lenguaje de consulta -->
+            <div class="panel query-language-panel">
+                <div class="panel-header">Lenguaje de Consulta</div>
+                <div class="query-language-content" id="queryLanguage">
+                    <p>Escribe una consulta para ver el lenguaje generado aquí.</p>
+                </div>
+            </div>
+            
+            <!-- Panel de entrada -->
+            <div class="panel input-panel">
+                <div class="panel-header">Entrada de Comandos</div>
+                <form id="chatForm" class="chat-input" method="POST" action="#">
+                    <input type="text" name="message" id="messageInput" placeholder="Escribe un comando de consulta..." required>
+                    <button type="submit" class="btn-send">Enviar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="footer">
+            <a href="{{ url_for('logout') }}" class="btn">Cerrar sesión</a>
+        </div>
+    </div>
+
+    <!-- NUEVO: Botón para subir Excel -->
+    <button id="reconocer-btn" style="
+        position: fixed; 
+        top: 10px; 
+        right: 10px; 
+        padding: 10px 15px; 
+        background-color: #4CAF50; 
+        color: white; 
+        border: none; 
+        cursor: pointer; 
+        border-radius: 5px;
+        z-index: 9999;
+    ">
+        Reconocer Base de Datos
+    </button>
+
+    <!-- Modal de subida de Excel -->
+    <div id="modalExcel" style="
+        display:none; 
+        position:fixed; 
+        top:50%; 
+        left:50%; 
+        transform:translate(-50%, -50%);
+        background:white; 
+        padding:20px; 
+        border:1px solid black; 
+        z-index:10000;
+    ">
+        <h3>Sube tu Excel</h3>
+        <form id="uploadFormExcel" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".xls,.xlsx" required>
+            <button type="submit">Subir y Guardar</button>
+        </form>
+        <button onclick="document.getElementById('modalExcel').style.display='none'">Cerrar</button>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle tema oscuro/claro
+    const themeToggle = document.getElementById('themeToggle');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        themeToggle.textContent = '☀️ Modo Claro';
+    }
+    themeToggle.addEventListener('click', function() {
+        document.body.classList.toggle('dark-theme');
+        if (document.body.classList.contains('dark-theme')) {
+            localStorage.setItem('theme', 'dark');
+            themeToggle.textContent = '☀️ Modo Claro';
+        } else {
+            localStorage.setItem('theme', 'light');
+            themeToggle.textContent = '🌙 Modo Oscuro';
+        }
+    });
+
+    // Chat con Llama
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+    const chatLog = document.getElementById('chatLog');
+    const queryLanguage = document.getElementById('queryLanguage');
+
+    chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        const userMsg = document.createElement('div');
+        userMsg.className = 'msg';
+        userMsg.textContent = `Tú: ${message}`;
+        chatLog.appendChild(userMsg);
+
+        const typingMsg = document.createElement('div');
+        typingMsg.className = 'msg bot';
+        typingMsg.textContent = '🤖 Escribiendo...';
+        typingMsg.id = 'typingMessage';
+        chatLog.appendChild(typingMsg);
+        chatLog.scrollTop = chatLog.scrollHeight;
+
+        try {
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+            const data = await response.json();
+            document.getElementById('typingMessage').remove();
+
+            if (data.success) {
+                const botMsg = document.createElement('div');
+                botMsg.className = 'msg bot';
+                botMsg.textContent = `Asistente: ${data.ai_response}`;
+                chatLog.appendChild(botMsg);
+
+                queryLanguage.innerHTML = `
+                    <div class="query-header"><strong>Lenguaje de Consulta Generado:</strong></div>
+                    <pre class="query-code">${data.query_language}</pre>
+                `;
+            } else {
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'msg error';
+                errorMsg.textContent = `Error: ${data.error}`;
+                chatLog.appendChild(errorMsg);
+            }
+        } catch (error) {
+            document.getElementById('typingMessage').remove();
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'msg error';
+            errorMsg.textContent = 'Error de conexión con el servidor';
+            chatLog.appendChild(errorMsg);
+        }
+
+        messageInput.value = '';
+        chatLog.scrollTop = chatLog.scrollHeight;
+    });
+
+    // NUEVO: Excel -> JSON -> MongoDB
+    const btnExcel = document.getElementById("reconocer-btn");
+    const modalExcel = document.getElementById("modalExcel");
+    const formExcel = document.getElementById("uploadFormExcel");
+
+    btnExcel.addEventListener("click", () => modalExcel.style.display = "block");
+
+    formExcel.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fileInput = formExcel.querySelector("input[name=file]");
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const res = await fetch("/upload_excel", { method: "POST", body: formData });
+            const data = await res.json();
+            if (data.success) alert("Archivo subido y guardado en MongoDB!");
+            else alert("Error: " + data.error);
+            modalExcel.style.display = "none";
+        } catch (err) {
+            alert("Error de conexión: " + err);
+            modalExcel.style.display = "none";
+        }
+    });
+});
+</script>
+
+</body>
+</html>
+
