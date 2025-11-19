@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head><title>Panel Admin</title></head>
+<body>
+<h2>Panel de Administración</h2>
+<table border="1">
+<tr><th>ID</th><th>Usuario</th><th>Estado</th><th>Acción</th></tr>
+{% for u in users %}
+<tr>
+<td>{{ u[0] }}</td>
+<td>{{ u[1] }}</td>
+<td>{{ u[3] }}</td>
+<td>
+<form method="POST" style="display:inline;">
+<input type="hidden" name="id" value="{{ u[0] }}">
+<button name="action" value="approve">Aprobar</button>
+<button name="action" value="reject">Rechazar</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+</table>
+<a href="/logout">Cerrar sesión</a>
+</body>
+</html>
