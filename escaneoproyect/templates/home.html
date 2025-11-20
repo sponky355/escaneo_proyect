@@ -12,9 +12,14 @@
         <button id="themeToggle" class="btn-theme">🌙 Modo Oscuro</button>
     </div>
 
+    <!-- BOTÓN FACTURAS (ARREGLADO) -->
+    <div class="nav-buttons">
+       <a href="{{ url_for('facturas_view') }}" class="btn" style="margin-left: 20px;">📄 Facturas</a>
+    </div>
+
     <div class="ai-container">
         <div class="ai-header">
-            <h1> IA Asistente</h1>
+            <h1>IA Asistente</h1>
             <p class="ai-user">Bienvenido, <strong>{{ user }}</strong></p>
         </div>
 
@@ -28,12 +33,18 @@
           {% endif %}
         {% endwith %}
 
+        <!-- BLOQUE PARA QUE FACTURAS.HTML SE MUESTRE -->
+        {% block content %}
+        {% endblock %}
+
         <div class="main-content">
             <!-- Panel de respuesta -->
             <div class="panel response-panel">
                 <div class="panel-header">Respuesta del Asistente</div>
                 <div class="chat-log" id="chatLog">
-                    <div class="msg bot">Hola <strong>{{ user }}</strong> 👋, soy tu asistente IA. ¿En qué puedo ayudarte hoy?</div>
+                    <div class="msg bot">
+                        Hola <strong>{{ user }}</strong> 👋, soy tu asistente IA. ¿En qué puedo ayudarte hoy?
+                    </div>
                 </div>
             </div>
             
@@ -62,7 +73,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Toggle tema oscuro/claro
     const themeToggle = document.getElementById('themeToggle');
     const currentTheme = localStorage.getItem('theme') || 'light';
     if (currentTheme === 'dark') {
@@ -80,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Chat con Llama
     const chatForm = document.getElementById('chatForm');
     const messageInput = document.getElementById('messageInput');
     const chatLog = document.getElementById('chatLog');

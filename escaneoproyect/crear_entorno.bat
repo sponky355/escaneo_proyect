@@ -72,16 +72,33 @@ if not exist venv\Scripts\python.exe (
 echo [INFO] Activando venv e instalando dependencias...
 call venv\Scripts\activate.bat
 python -m pip install --upgrade pip
-pip install flask ollama requests python-dotenv blinker
+
+:: DEPENDENCIAS NORMALES
+pip install flask
+pip install ollama
+pip install requests
+pip install python-dotenv
+pip install blinker
+
+:: DEPENDENCIAS PARA FACTURAS
+pip install pandas
+pip install openpyxl
+
+:: DEPENDENCIAS MONGO DB (LAS CORRECTAS)
+pip install pymongo
+pip install dnspython
+
 deactivate
 
 echo ==================================================
 echo [OK] Entorno virtual listo con dependencias:
 echo  - Flask
-echo  - Ollama (cliente Python)
+echo  - Ollama
 echo  - Requests
 echo  - Dotenv
 echo  - Blinker
+echo  - Pandas + Openpyxl (Excel)
+echo  - MongoDB: pymongo + dnspython
 echo ==================================================
 
 
@@ -99,9 +116,8 @@ if exist "%OLLAMA_SETUP_PATH%" (
     echo [INFO] Iniciando instalación de Ollama...
     start "" "%OLLAMA_SETUP_PATH%"
     echo.
-    echo [NEXT] Luego de instalar, ejecuta en CMD:
+    echo [NEXT] Luego de instalar, corre en CMD manualmente:
     echo        ollama serve
-    echo        ollama pull llama3
 ) else (
     echo [WARN] No se encontró OllamaSetup(1).exe en carpeta /Descargar
     echo        Descarga desde: https://ollama.com/download
