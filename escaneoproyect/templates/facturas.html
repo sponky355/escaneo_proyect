@@ -3,8 +3,12 @@
 
 <h2 class="title">Gestión de Facturas</h2>
 
-<!-- Formulario de Upload -->
-<form action="{{ url_for('facturas_upload') }}" method="POST" enctype="multipart/form-data" class="upload-box">
+<!-- FORMULARIO PARA SUBIR FACTURA -->
+<form action="{{ url_for('facturas.facturas_upload') }}"
+      method="POST"
+      enctype="multipart/form-data"
+      class="upload-box">
+
     <label for="file">Subir factura (.xls o .xlsx):</label>
     <input type="file" name="file" required>
     <button type="submit" class="btn">Subir</button>
@@ -12,12 +16,11 @@
 
 <hr>
 
-<!-- Tabla de Facturas -->
 <table class="tabla-facturas">
     <thead>
         <tr>
             <th>Archivo</th>
-            <th>Fecha</th>
+            <th>Ruta</th>
             <th>Descargar JSON</th>
             <th>Borrar</th>
         </tr>
@@ -26,43 +29,34 @@
     <tbody>
         {% for f in facturas %}
         <tr>
-            <td>{{ f.nombre_archivo }}</td>
-            <td>{{ f.fecha_subida }}</td>
 
+            <!-- NOMBRE DEL ARCHIVO -->
+            <td>{{ f.filename }}</td>
+
+            <!-- RUTA DONDE SE GUARDÓ -->
+            <td>{{ f.path }}</td>
+
+            <!-- DESCARGAR JSON (AÚN NO IMPLEMENTADO) -->
             <td>
-                <a class="btn btn-sm" href="{{ url_for('facturas_download', id_mongo=f._id) }}">
+                <a class="btn btn-sm"
+                   href="#">
                     Descargar JSON
                 </a>
             </td>
 
+            <!-- ELIMINAR FACTURA (AÚN NO IMPLEMENTADO) -->
             <td>
-                <form method="POST" action="{{ url_for('facturas_delete', id_mongo=f._id) }}">
-                    <button class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar factura?');">
+                <form method="POST" action="#">
+                    <button class="btn btn-danger btn-sm"
+                            onclick="return confirm('¿Eliminar factura?');">
                         Eliminar
                     </button>
                 </form>
             </td>
+
         </tr>
         {% endfor %}
     </tbody>
 </table>
-
-<style>
-    .upload-box {
-        padding: 15px;
-        background: #f0f0f0;
-        border-radius: 10px;
-        margin-bottom: 20px;
-    }
-    .tabla-facturas {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    .tabla-facturas th, .tabla-facturas td {
-        border: 1px solid #aaa;
-        padding: 8px;
-        text-align: center;
-    }
-</style>
 
 {% endblock %}

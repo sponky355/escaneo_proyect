@@ -1,57 +1,77 @@
-# extension.py
-# MongoDB para facturas (Excel -> JSON)
-
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from pymongo import MongoClient
-from datetime import datetime
-from bson.objectid import ObjectId
+import os
+from werkzeug.utils import secure_filename
 
-MONGO_URI = "mongodb://localhost:27017"
-DB_NAME = "escaneo_facturas"
+# Blueprint
+facturas_bp = Blueprint("facturas", __name__, url_prefix="/facturas")
 
-client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
-facturas = db["facturas"]
-
-
-def guardar_factura_doc(usuario, nombre_archivo, ruta_archivo, data_json):
-    """
-    Guarda la factura procesada en Mongo.
-    data_json: lista de dict (registros) resultantes de convertir Excel -> JSON
-    """
-    doc = {
-        "usuario": usuario,
-        "filename": nombre_archivo,
-        "archivo_ruta": ruta_archivo,
-        "data": data_json,
-        "created_at": datetime.utcnow()
-    }
-    res = facturas.insert_one(doc)
-    return str(res.inserted_id)
+# MongoDB
+client = MongoClient("mongodb://localhost:27017/")
+db = client["escaneo_db"]
+facturas_col = db["facturas"]
 
 
-def obtener_facturas_usuario(usuario):
-    rows = list(facturas.find({"usuario": usuario}).sort("created_at", -1))
-    # convertir ObjectId a str para evitar problemas en templates
-    for r in rows:
-        r["_id"] = str(r["_id"])
-    return rows
+# ---------------------------
+# LISTAR FACTURAS – /facturas/lista
+# ---------------------------
+@facturas_bp.route("/lista")
+def facturas_lista():
+    facturas = list(facturas_col.find())
+    return render_template("facturas.html", facturas=facturas)
 
 
-def borrar_factura(id_mongo):
-    try:
-        oid = ObjectId(id_mongo)
-    except Exception:
-        return False
-    facturas.delete_one({"_id": oid})
-    return True
+# ---------------------------
+# SUBIR ARCHIVO – /facturas/upload
+# ---------------------------
+@facturas_bp.route("/upload", methods=["POST"])
+def facturas_upload():
+
+    if "file" not in request.files:
+        flash("No se recibió archivo.")
+        return redirect(url_for("facturas.facturas_lista"))
+
+    file = request.files["file"]
+
+    if file.filename == "":
+        flash("Archivo inválido.")
+        return redirect(url_for("facturas.facturas_lista"))
+
+    filename = secure_filename(file.filename)
+    save_path = os.path.join("uploads", filename)
+    os.makedirs("uploads", exist_ok=True)
+    file.save(save_path)
+
+    facturas_col.insert_one({
+        "nombre_archivo": filename,
+        "fecha_subida": "hoy",
+        "path": save_path
+    })
+
+    flash("Factura subida con éxito.")
+    return redirect(url_for("facturas.facturas_lista"))
 
 
-def obtener_factura_por_id(id_mongo):
-    try:
-        oid = ObjectId(id_mongo)
-    except Exception:
-        return None
-    doc = facturas.find_one({"_id": oid})
-    if doc:
-        doc["_id"] = str(doc["_id"])
-    return doc
+# ---------------------------
+# DESCARGAR JSON – /facturas/download/<id>
+# ---------------------------
+@facturas_bp.route("/download/<id_mongo>")
+def facturas_download(id_mongo):
+    flash("Aquí iría la lógica de descarga JSON.")
+    return redirect(url_for("facturas.facturas_lista"))
+
+
+# ---------------------------
+# ELIMINAR FACTURA – /facturas/delete/<id>
+# ---------------------------
+@facturas_bp.route("/delete/<id_mongo>", methods=["POST"])
+def facturas_delete(id_mongo):
+    facturas_col.delete_one({"_id": id_mongo})  # ajusta si usas ObjectId
+    flash("Factura eliminada correctamente.")
+    return redirect(url_for("facturas.facturas_lista"))
+
+#   /\_____/\  
+#   \ 9   9 /  
+#    \>--< /   19  
+#    (      )19  
+#     n   n

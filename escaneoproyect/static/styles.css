@@ -513,7 +513,15 @@ body {
     background: #a8a8a8;
 }
 
-/* Responsive mejorado */
+/* Responsive mejorado
+
+#   /\_____/\
+#   \ 9   9 /
+#    \>--< /   19 
+#    (      )19 
+#     n   n
+
+*/
 @media (max-width: 1024px) {
     .ai-container {
         padding: 15px;
