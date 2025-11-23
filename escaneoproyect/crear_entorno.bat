@@ -80,6 +80,9 @@ pip install requests
 pip install python-dotenv
 pip install blinker
 
+:: *** AQUI SE AGREGA LA DEPENDENCIA QUE PEDISTE ***
+pip install waitress
+
 :: DEPENDENCIAS PARA FACTURAS
 pip install pandas
 pip install openpyxl
@@ -99,6 +102,7 @@ echo  - Dotenv
 echo  - Blinker
 echo  - Pandas + Openpyxl (Excel)
 echo  - MongoDB: pymongo + dnspython
+echo  - **Waitress (Producción)**
 echo ==================================================
 
 
